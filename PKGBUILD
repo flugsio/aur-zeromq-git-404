@@ -4,7 +4,7 @@
 # Contributor: Kyle Keen <keenerd@gmail.com>
 
 pkgname=zeromq-git
-pkgver=20160528
+pkgver=4.0.4
 pkgrel=1
 pkgdesc="ZeroMQ core engine in C++"
 arch=('i686' 'x86_64')
@@ -13,20 +13,17 @@ makedepends=('autoconf' 'automake' 'gcc' 'git' 'libtool' 'make' 'pkg-config')
 url="https://github.com/zeromq/libzmq"
 license=('LGPL3')
 options=('staticlibs')
-source=(${pkgname%-git}::git+https://github.com/zeromq/libzmq
-        https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp)
-sha256sums=('SKIP'
-            'SKIP')
+source=(${pkgname%-git}::http://download.zeromq.org/zeromq-4.0.4.tar.gz)
+sha256sums=('SKIP')
 provides=('zeromq')
 conflicts=('zeromq')
 
 pkgver() {
-  cd ${pkgname%-git}
-  git log -1 --format="%cd" --date=short | sed "s|-||g"
+  echo 4.0.4
 }
 
 build() {
-  cd ${pkgname%-git}
+  cd ${pkgname%-git}-4.0.4
 
   msg2 'Building...'
   ./autogen.sh
@@ -40,13 +37,13 @@ build() {
     --disable-perf \
     --enable-static \
     --with-gnu-ld \
-    --with-pgm \
+    --without-pgm \
     --without-docs
   make
 }
 
 package() {
-  cd ${pkgname%-git}
+  cd ${pkgname%-git}-4.0.4
 
   msg2 'Installing license...'
   install -Dm 644 COPYING* -t "$pkgdir/usr/share/licenses/zeromq"
@@ -54,8 +51,6 @@ package() {
   msg2 'Installing...'
   make DESTDIR="$pkgdir" install
 
-  msg2 'Installing zmq.hpp...'
-  install -Dm 644 "$srcdir/zmq.hpp" -t "$pkgdir/usr/include"
 
   msg2 'Renaming binaries...'
   for _bin in $(find "$pkgdir/usr/bin" -type f -printf '%f\n'); do
